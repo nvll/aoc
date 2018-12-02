@@ -1,18 +1,19 @@
 use env_logger;
+use failure::Error;
 use log::trace;
 use std::collections::HashMap;
 use std::fs;
 
-fn main() {
+fn main() -> Result<(), Error> {
     env_logger::init();
     let mut frequencies: HashMap<i32, u32> = HashMap::new();
-    let buffer = fs::read_to_string("input.txt").expect("failed to read file");
     let mut frequency = 0;
     let mut found = false;
+    let buffer = fs::read_to_string("input.txt")?;
 
     while !found {
-        for line in buffer.trim().split("\n") {
-            let val: i32 = line.parse().unwrap();
+        for line in buffer.lines() {
+            let val: i32 = line.parse()?;
             frequency += val;
             let counter = frequencies.entry(frequency).or_insert(0);
             *counter += 1;
@@ -28,5 +29,7 @@ fn main() {
             }
         }
     }
+
     println!("frequency: {}", frequency);
+    Ok(())
 }
