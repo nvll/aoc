@@ -3,7 +3,7 @@ const SERIAL: i64 = 6392;
 
 fn main() {
     println!("part1: {:?}", part1(SERIAL, 3));
-    part2(SERIAL, 1, 300);
+    println!("part2: {:?}", part2(SERIAL, 1, 300));
 }
 
 fn calc_cell_power_level(x: usize, y: usize, serial: i64) -> i64 {
@@ -57,7 +57,7 @@ fn part1(serial: i64, width: usize) -> (usize, usize, i64) {
     (x_max, y_max, max)
 }
 
-fn part2(serial: i64, width_min: usize, width_max: usize) {
+fn part2(serial: i64, width_min: usize, width_max: usize) -> (usize, usize, usize) {
     let mut grid: Vec<Vec<i64>> = vec![vec![0; GRID_WIDTH]; GRID_WIDTH];
     let mut cache: Vec<Vec<i64>> = vec![vec![0; GRID_WIDTH]; GRID_WIDTH];
 
@@ -70,6 +70,11 @@ fn part2(serial: i64, width_min: usize, width_max: usize) {
 
     // We need to cache the lower values to calculate the higher ones, but each size
     // increase should be additive.
+    let mut global_max_x = 0;
+    let mut global_max_y = 0;
+    let mut global_max_width = 0;
+    let mut global_max_level = 0;
+
     for s_w in 1..=width_max {
         let mut max_x = 0;
         let mut max_y = 0;
@@ -93,8 +98,14 @@ fn part2(serial: i64, width_min: usize, width_max: usize) {
                 }
             }
         }
-        println!("{}x{} .. {}, {}, {}", s_w, s_w, max_x, max_y, level_max);
+        if level_max > global_max_level {
+            global_max_x = max_x;
+            global_max_y = max_y;
+            global_max_width = s_w;
+            global_max_level = level_max;
+        }
     }
+    (global_max_x, global_max_y, global_max_width)
 }
 
 #[test]
