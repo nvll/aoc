@@ -10,8 +10,7 @@ fn part1() -> usize {
     // Modifications per the question
     input[1] = 12;
     input[2] = 2;
-    let mut cpu = Cpu::new(Some(input));
-    cpu.run();
+    let cpu = Cpu::new(Some(input)).run();
     cpu.insts[0]
 }
 
@@ -25,8 +24,7 @@ fn part2() -> usize {
             memory[1] = noun;
             memory[2] = verb;
 
-            let mut cpu = Cpu::new(Some(memory));
-            cpu.run();
+            let cpu = Cpu::new(Some(memory)).run();
             if cpu.insts[0] == PART2_GOAL {
                 return 100 * noun + verb;
             }
@@ -57,7 +55,7 @@ impl Cpu {
         }
     }
 
-    fn new(mut insts: Option<Vec<usize>>) -> Self {
+    fn new(mut insts: Option<Vec<usize>>) -> Cpu {
         if let Some(insts) = insts.take() {
             Cpu { ip: 0, insts }
         } else {
@@ -76,7 +74,7 @@ impl Cpu {
         self.insts[dest] = self.insts[arg1] * self.insts[arg2];
     }
 
-    fn run(&mut self) {
+    fn run(mut self) -> Cpu {
         while self.ip < self.insts.len() {
             let instruction = Cpu::op_to_instruction(self.insts[self.ip]);
             match instruction {
@@ -90,10 +88,11 @@ impl Cpu {
                         _ => panic!(),
                     }
                 }
-                Instruction::HALT => return,
+                Instruction::HALT => break,
             };
             self.ip += Cpu::INSTRUCTION_WIDTH;
         }
+        self
     }
 }
 
@@ -126,23 +125,19 @@ mod tests {
     #[test]
     fn example1() {
         {
-            let mut cpu = Cpu::new(Some(vec![1, 0, 0, 0, 99]));
-            cpu.run();
+            let cpu = Cpu::new(Some(vec![1, 0, 0, 0, 99])).run();
             assert_eq!(cpu.insts[0], 2);
         }
         {
-            let mut cpu = Cpu::new(Some(vec![2, 3, 0, 3, 99]));
-            cpu.run();
+            let cpu = Cpu::new(Some(vec![2, 3, 0, 3, 99])).run();
             assert_eq!(cpu.insts[3], 6);
         }
         {
-            let mut cpu = Cpu::new(Some(vec![2, 4, 4, 5, 99, 0]));
-            cpu.run();
+            let cpu = Cpu::new(Some(vec![2, 4, 4, 5, 99, 0])).run();
             assert_eq!(cpu.insts[5], 9801);
         }
         {
-            let mut cpu = Cpu::new(Some(vec![1, 1, 1, 4, 99, 5, 6, 0, 99]));
-            cpu.run();
+            let cpu = Cpu::new(Some(vec![1, 1, 1, 4, 99, 5, 6, 0, 99])).run();
             assert_eq!(cpu.insts[0], 30);
             assert_eq!(cpu.insts[4], 2);
         }
